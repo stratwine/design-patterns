@@ -1,5 +1,9 @@
 package com.patterns.chain;
 
+/*
+   This implementation contains one method that must be overridden.
+   The other method acts as the chain invoker.
+ */
 abstract class Logger {
 	
 	protected Logger nextLogger;
@@ -8,13 +12,19 @@ abstract class Logger {
 	{
 		this.nextLogger=logger;
 	}
-	
+
+
+    /*
+        chain behavior is established by
+        1) invoking the processor method. Here writeMessage() is the processor method.
+        2) invoking the next one in the chain
+     */
 	public void message(String message, int priority)
 	{
 		this.writeMessage(message, priority);
 		if(nextLogger!=null)
 		{
-			nextLogger.writeMessage(message, priority);
+			nextLogger.message(message, priority);
 		}
 	}
 	
@@ -29,7 +39,7 @@ class EmailLogger extends Logger
 	public void writeMessage(String message,int priority)
 	{
 		if(priority==3){
-		System.out.println("Altering by Email: "+message);
+		System.out.println("Alerting by Email: "+message);
 		}
 	}
 }
@@ -62,8 +72,13 @@ public class ChainOfResponsibility
 {
 	public static void main(String[] args)
 	{
-		Logger logger = new ConsoleLogger();
-		logger.setNextLogger(new StdErrLogger());
-		logger.message("check", 3);
+        //creation of chain
+        // ConsoleHandler-->StdErrHandler
+		Logger emailLogger = new EmailLogger();
+        Logger consoleLogger = new ConsoleLogger();
+        consoleLogger.setNextLogger(new StdErrLogger());
+        emailLogger.setNextLogger(consoleLogger);
+        emailLogger.message("check", 3);
+
 	}
 }
